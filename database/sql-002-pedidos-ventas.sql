@@ -143,114 +143,126 @@ CREATE TABLE [MOVIMIENTO_INVENTARIO] (
 GO
 
 CREATE TABLE [Estado_pedido] (
-  [ID_estado_pedido] int PRIMARY KEY IDENTITY(1, 1),
-  [Nombre] varchar(50) UNIQUE NOT NULL,
-  [Descripcion] text,
-  [Activo] boolean NOT NULL DEFAULT (true)
-)
+  [ID_estado_pedido] INT IDENTITY(1, 1) PRIMARY KEY,
+  [Nombre] VARCHAR(50) UNIQUE NOT NULL,
+  [Descripcion] TEXT,
+  [Activo] BIT NOT NULL DEFAULT 1
+);
 GO
 
 CREATE TABLE [Pedido] (
-  [ID_Pedido] int PRIMARY KEY IDENTITY(1, 1),
-  [ID_cliente] int NOT NULL,
-  [ID_estado_pedido] int NOT NULL,
-  [Fecha_pedido] datetime NOT NULL,
-  [Subtotal] decimal(10,2) NOT NULL,
-  [Impuestos] decimal(10,2) NOT NULL,
-  [Descuento] decimal(10,2) NOT NULL DEFAULT (0),
-  [Total] decimal(10,2) NOT NULL,
-  [Observaciones] text,
-  [Fecha_actualizacion] datetime
-)
+  [ID_Pedido] INT IDENTITY(1, 1) PRIMARY KEY,
+  [Codigo_pedido] VARCHAR(50) UNIQUE NOT NULL,
+  [ID_cliente] INT NOT NULL,
+  [ID_estado_pedido] INT NOT NULL,
+  [Fecha_pedido] DATETIME NOT NULL,
+  [Subtotal] DECIMAL(10,2) NOT NULL,
+  [Impuestos] DECIMAL(10,2) NOT NULL,
+  [Descuento] DECIMAL(10,2) NOT NULL DEFAULT 0,
+  [Total] DECIMAL(10,2) NOT NULL,
+  [Observaciones] TEXT,
+  [Fecha_actualizacion] DATETIME,
+  CONSTRAINT [FK_Pedido_Estado] FOREIGN KEY ([ID_estado_pedido]) REFERENCES [Estado_pedido]([ID_estado_pedido])
+);
 GO
 
 CREATE TABLE [Detalle_Pedido] (
-  [ID_detalle_pedido] int PRIMARY KEY IDENTITY(1, 1),
-  [ID_pedido] int NOT NULL,
-  [ID_Producto] int NOT NULL,
-  [Cantidad] int NOT NULL,
-  [Precio_Unitario] decimal(10,2) NOT NULL,
-  [Descuento] decimal(10,2) NOT NULL DEFAULT (0),
-  [Subtotal] decimal(10,2) NOT NULL
-)
+  [ID_detalle_pedido] INT IDENTITY(1, 1) PRIMARY KEY,
+  [ID_pedido] INT NOT NULL,
+  [ID_Producto] INT NOT NULL,
+  [Cantidad] INT NOT NULL,
+  [Precio_Unitario] DECIMAL(10,2) NOT NULL,
+  [Descuento] DECIMAL(10,2) NOT NULL DEFAULT 0,
+  [Subtotal] DECIMAL(10,2) NOT NULL,
+  CONSTRAINT [FK_DetallePedido_Pedido] FOREIGN KEY ([ID_pedido]) REFERENCES [Pedido]([ID_Pedido]),
+  CONSTRAINT [UQ_Pedido_Producto] UNIQUE ([ID_pedido], [ID_Producto])
+);
 GO
 
-CREATE TABLE [Historial_Pedido] (
-  [ID_historial_pedido] int PRIMARY KEY IDENTITY(1, 1),
-  [ID_pedido] int NOT NULL,
-  [ID_estado_anterior] int,
-  [ID_estado_nuevo] int,
-  [Tipo_evento] varchar(100) NOT NULL,
-  [Fecha_hora] datetime NOT NULL,
-  [ID_usuario] int,
-  [Descripcion] text
-)
+CREATE TABLE [Tracking_Pedido] (
+  [ID_tracking_pedido] INT IDENTITY(1, 1) PRIMARY KEY,
+  [ID_pedido] INT NOT NULL,
+  [ID_estado_pedido] INT NOT NULL,
+  [Tipo_evento] VARCHAR(100) NOT NULL,
+  [Fecha_hora] DATETIME NOT NULL,
+  [ID_usuario] INT,
+  [Descripcion] TEXT,
+  CONSTRAINT [FK_Tracking_Pedido] FOREIGN KEY ([ID_pedido]) REFERENCES [Pedido]([ID_Pedido]),
+  CONSTRAINT [FK_Tracking_Estado] FOREIGN KEY ([ID_estado_pedido]) REFERENCES [Estado_pedido]([ID_estado_pedido])
+);
 GO
 
 CREATE TABLE [Estado_venta] (
-  [ID_estado_venta] int PRIMARY KEY IDENTITY(1, 1),
-  [Nombre] varchar(50) UNIQUE NOT NULL,
-  [Descripcion] text,
-  [Activo] boolean NOT NULL DEFAULT (true)
-)
+  [ID_estado_venta] INT IDENTITY(1, 1) PRIMARY KEY,
+  [Nombre] VARCHAR(50) UNIQUE NOT NULL,
+  [Descripcion] TEXT,
+  [Activo] BIT NOT NULL DEFAULT 1
+);
 GO
 
 CREATE TABLE [Venta] (
-  [ID_venta] int PRIMARY KEY IDENTITY(1, 1),
-  [ID_pedido] int UNIQUE NOT NULL,
-  [ID_estado_venta] int NOT NULL,
-  [Fecha_venta] datetime NOT NULL,
-  [Subtotal] decimal(10,2) NOT NULL,
-  [Impuestos] decimal(10,2) NOT NULL,
-  [Descuento] decimal(10,2) NOT NULL DEFAULT (0),
-  [Total] decimal(10,2) NOT NULL,
-  [Observaciones] text
-)
+  [ID_venta] INT IDENTITY(1, 1) PRIMARY KEY,
+  [ID_pedido] INT UNIQUE NOT NULL,
+  [ID_estado_venta] INT NOT NULL,
+  [Fecha_venta] DATETIME NOT NULL,
+  [Subtotal] DECIMAL(10,2) NOT NULL,
+  [Impuestos] DECIMAL(10,2) NOT NULL,
+  [Descuento] DECIMAL(10,2) NOT NULL DEFAULT 0,
+  [Total] DECIMAL(10,2) NOT NULL,
+  [Observaciones] TEXT,
+  CONSTRAINT [FK_Venta_Pedido] FOREIGN KEY ([ID_pedido]) REFERENCES [Pedido]([ID_Pedido]),
+  CONSTRAINT [FK_Venta_Estado] FOREIGN KEY ([ID_estado_venta]) REFERENCES [Estado_venta]([ID_estado_venta])
+);
 GO
 
 CREATE TABLE [Detalle_venta] (
-  [ID_detalle_venta] int PRIMARY KEY IDENTITY(1, 1),
-  [ID_venta] int NOT NULL,
-  [ID_producto] int NOT NULL,
-  [Cantidad] int NOT NULL,
-  [Precio_unitario] decimal(10,2) NOT NULL,
-  [Descuento] decimal(10,2) NOT NULL DEFAULT (0),
-  [Subtotal] decimal(10,2) NOT NULL
-)
+  [ID_detalle_venta] INT IDENTITY(1, 1) PRIMARY KEY,
+  [ID_venta] INT NOT NULL,
+  [ID_producto] INT NOT NULL,
+  [Cantidad] INT NOT NULL,
+  [Precio_unitario] DECIMAL(10,2) NOT NULL,
+  [Descuento] DECIMAL(10,2) NOT NULL DEFAULT 0,
+  [Subtotal] DECIMAL(10,2) NOT NULL,
+  CONSTRAINT [FK_DetalleVenta_Venta] FOREIGN KEY ([ID_venta]) REFERENCES [Venta]([ID_venta]),
+  CONSTRAINT [UQ_Venta_Producto] UNIQUE ([ID_venta], [ID_producto])
+);
 GO
 
 CREATE TABLE [Comprobante_Venta] (
-  [ID_comprobante] int PRIMARY KEY IDENTITY(1, 1),
-  [ID_venta] int NOT NULL,
-  [Tipo_comprobante] varchar(50) NOT NULL,
-  [Numero_comprobante] varchar(100) UNIQUE NOT NULL,
-  [Fecha_emision] datetime NOT NULL,
-  [Subtotal] decimal(10,2) NOT NULL,
-  [Impuestos] decimal(10,2) NOT NULL,
-  [Total] decimal(10,2) NOT NULL,
-  [Estado] varchar(50) NOT NULL
-)
+  [ID_comprobante] INT IDENTITY(1, 1) PRIMARY KEY,
+  [ID_venta] INT NOT NULL,
+  [Tipo_comprobante] VARCHAR(50) NOT NULL,
+  [Numero_comprobante] VARCHAR(100) UNIQUE NOT NULL,
+  [Fecha_emision] DATETIME NOT NULL,
+  [Subtotal] DECIMAL(10,2) NOT NULL,
+  [Impuestos] DECIMAL(10,2) NOT NULL,
+  [Total] DECIMAL(10,2) NOT NULL,
+  [Estado] BIT NOT NULL DEFAULT 1,
+  CONSTRAINT [FK_Comprobante_Venta] FOREIGN KEY ([ID_venta]) REFERENCES [Venta]([ID_venta])
+);
 GO
 
 CREATE TABLE [Metodo_de_pago] (
-  [ID_metodo] int PRIMARY KEY IDENTITY(1, 1),
-  [Nombre] varchar(50) UNIQUE NOT NULL,
-  [Descripcion] text,
-  [Estado_activo] boolean NOT NULL DEFAULT (true),
-  [Fecha_creacion] datetime NOT NULL
-)
+  [ID_metodo] INT IDENTITY(1, 1) PRIMARY KEY,
+  [Nombre] VARCHAR(50) UNIQUE NOT NULL,
+  [Descripcion] TEXT,
+  [Estado_activo] BIT NOT NULL DEFAULT 1,
+  [Fecha_creacion] DATETIME NOT NULL
+);
 GO
 
 CREATE TABLE [Pago] (
-  [ID_pago] int PRIMARY KEY IDENTITY(1, 1),
-  [ID_venta] int NOT NULL,
-  [ID_metodo] int NOT NULL,
-  [Fecha_pago] datetime NOT NULL,
-  [Monto] decimal(10,2) NOT NULL,
-  [Referencia] varchar(100),
-  [Estado] varchar(50) NOT NULL,
-  [Observaciones] text
-)
+  [ID_pago] INT IDENTITY(1, 1) PRIMARY KEY,
+  [ID_venta] INT NOT NULL,
+  [ID_metodo] INT NOT NULL,
+  [Fecha_pago] DATETIME NOT NULL,
+  [Monto] DECIMAL(10,2) NOT NULL,
+  [Referencia] VARCHAR(100),
+  [Estado] VARCHAR(50) NOT NULL,
+  [Observaciones] TEXT,
+  CONSTRAINT [FK_Pago_Venta] FOREIGN KEY ([ID_venta]) REFERENCES [Venta]([ID_venta]),
+  CONSTRAINT [FK_Pago_Metodo] FOREIGN KEY ([ID_metodo]) REFERENCES [Metodo_de_pago]([ID_metodo])
+);
 GO
 
 CREATE TABLE [Reportes] (
@@ -280,12 +292,6 @@ CREATE TABLE [Nivel] (
   [Rol] integer NOT NULL,
   [Nivel] integer NOT NULL
 )
-GO
-
-CREATE UNIQUE INDEX [Detalle_Pedido_index_0] ON [Detalle_Pedido] ("ID_pedido", "ID_Producto")
-GO
-
-CREATE UNIQUE INDEX [Detalle_venta_index_1] ON [Detalle_venta] ("ID_venta", "ID_producto")
 GO
 
 ALTER TABLE [cliente] ADD FOREIGN KEY ([idTipoCliente]) REFERENCES [TipoCliente] ([idTipoCliente])
@@ -327,39 +333,6 @@ GO
 ALTER TABLE [MOVIMIENTO_INVENTARIO] ADD FOREIGN KEY ([ID_Abastecimiento]) REFERENCES [ABASTECIMIENTO] ([ID_Abastecimiento])
 GO
 
-ALTER TABLE [Pedido] ADD FOREIGN KEY ([ID_estado_pedido]) REFERENCES [Estado_pedido] ([ID_estado_pedido])
-GO
-
-ALTER TABLE [Detalle_Pedido] ADD FOREIGN KEY ([ID_pedido]) REFERENCES [Pedido] ([ID_Pedido])
-GO
-
-ALTER TABLE [Historial_Pedido] ADD FOREIGN KEY ([ID_pedido]) REFERENCES [Pedido] ([ID_Pedido])
-GO
-
-ALTER TABLE [Historial_Pedido] ADD FOREIGN KEY ([ID_estado_anterior]) REFERENCES [Estado_pedido] ([ID_estado_pedido])
-GO
-
-ALTER TABLE [Historial_Pedido] ADD FOREIGN KEY ([ID_estado_nuevo]) REFERENCES [Estado_pedido] ([ID_estado_pedido])
-GO
-
-ALTER TABLE [Venta] ADD FOREIGN KEY ([ID_pedido]) REFERENCES [Pedido] ([ID_Pedido])
-GO
-
-ALTER TABLE [Venta] ADD FOREIGN KEY ([ID_estado_venta]) REFERENCES [Estado_venta] ([ID_estado_venta])
-GO
-
-ALTER TABLE [Detalle_venta] ADD FOREIGN KEY ([ID_venta]) REFERENCES [Venta] ([ID_venta])
-GO
-
-ALTER TABLE [Comprobante_Venta] ADD FOREIGN KEY ([ID_venta]) REFERENCES [Venta] ([ID_venta])
-GO
-
-ALTER TABLE [Pago] ADD FOREIGN KEY ([ID_venta]) REFERENCES [Venta] ([ID_venta])
-GO
-
-ALTER TABLE [Pago] ADD FOREIGN KEY ([ID_metodo]) REFERENCES [Metodo_de_pago] ([ID_metodo])
-GO
-
 ALTER TABLE [Reportes] ADD FOREIGN KEY ([Formato]) REFERENCES [Formato] ([id_Formato])
 GO
 
@@ -378,4 +351,3 @@ GO
 
 ALTER TABLE [Reportes_Nivel] ADD FOREIGN KEY ([Nivel_Nivel]) REFERENCES [Nivel] ([Nivel]);
 GO
-
